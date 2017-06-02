@@ -1,27 +1,28 @@
 #include <iostream>
-#include <Windows.h>
-#include <conio.h>
+#include <Windows.h> // 색깔
+#include <conio.h> // _kbhit(), _getch() 함수
+#include <stdlib.h> // exit() 함수의 헤더
+// #include <time.h>  // Srand((unsigned int)time(NULL)) 하면 투사체가 이상하게 떨어짐
 
 using namespace std;
 /**
  * 투사체의 움직임을 관리 할 구조체
  */
-typedef struct MOVEOBJECT {
+typedef struct {
 	int x		// x 좌표
 		, y		// y 좌표
 		, wait; // 대기시간
 }MOVEOBJECT;
 
 // 화면의 특정 위치로 이동해 주는 함수.
-void gotoxy(int x, int y)
-{
+void gotoxy(int x, int y) {
 	COORD Pos;
-	Pos.X = x - 1;
-	Pos.Y = y - 1;
+	Pos.X = x;
+	Pos.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
-// 키입력 함수
+// 사람 이동 키 입력 함수
 BOOL isKeyState(int Key) {
 	// http://seokr.tistory.com/473
 	// 키보드의 키가 눌렸는지 체크하는 함수
@@ -67,46 +68,61 @@ void mainMenu() {
 	gotoxy(40, 16);
 	cout << " 3. 게 임 종 료 " << "\n";
 }
+
+/**
+ * 스코어에 따라 학점 출력 함수
+ */
+void result() {
+	
+}
+
 /**
  * 게 임 설 명
  */
 void description() {
 
 }
+
 /**
 * @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 01	|	SeokRae		|	신규		|
 * @Description
-*		게임 난이도 조절 함수
+*		게임 난이도에 따른 Console Setting
+*		level 1 ~ 5 까지 설정
 */
-void changeStage(int level) {
+void stageSetting(int level) {
 
 	// 스테이지별 난이도 조절
 	switch (level) {
 	case 1:
 		system("cls");
 		system("mode con: cols=100 lines=30");
+		system("Color 04");
 		gotoxy(37, 10); cout << "F 학점을 피해라 !!" << "\n";
 		Sleep(1500);
 		break;
 	case 2:
+		system("cls");
 		system("mode con: cols=120 lines=30");
 		gotoxy(37, 10); cout << "D 학점을 피해라 !!" << "\n";
 		Sleep(1500);
 		break;
 	case 3:
+		system("cls");
 		system("mode con: cols=140 lines=30");
 		gotoxy(37, 10); cout << "C 학점을 피해라 !!" << "\n";
 		Sleep(1500);
 		break;
 	case 4:
+		system("cls");
 		system("mode con: cols=160 lines=30");
 		gotoxy(37, 10); cout << "B 학점을 피해라 !!" << "\n";
 		Sleep(1500);
 		break;
 	case 5:
+		system("cls");
 		system("mode con: cols=180 lines=30");
 		gotoxy(37, 10); cout << "A 학점을 피해라 !!" << "\n";
 		Sleep(1500);
@@ -126,59 +142,115 @@ void changeStage(int level) {
 *		게임 실행 함수
 */
 void game(int stage) {
-	// 배경색 흰색(F)에 폰트 검은색(0)
-	system("Color F0");
+	stageSetting(stage); // 난이도에 따른 콘솔창 조절 함수 호출
+	int life = 100; // 전체 라이프
+
 	int speed = 75 - stage * 15; // 난이도 조절
 
-	changeStage(stage); // 난이도에 따른 콘솔창 조절 함수 호출
+	MOVEOBJECT mObj[100], user; // 투사체와 사용자 구조체
 	
-	MOVEOBJECT fallingObject[100];
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0x00); // 바닥 검정색 
-	printf("ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ");
-	printf("ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ");
-
-	// 투사체 F학점 좌표 및 대기 시간 초기화
-	for (int i = 0; i < 100; i++) {
-		fallingObject[i].x = rand() % 120 + 1;	// x좌표 1 ~ 100 까지 랜덤으로 생성한다.
-		fallingObject[i].y = 0;					// y좌표 2에서 생성
-		fallingObject[i].wait = rand() % 100;	// 생성 대기시간을 주어 한 줄로 떨어지지 않게 한다.
+	bool flag = true; // 게임 반복문에 대한 bool 변수
+	
+	// 투사체 F학점 개수, 좌표, 대기 시간 [초기화]
+	for (int i = 0; i < 50; i++) {
+		mObj[i].x = rand() % 100 + 1;	// x좌표 1 ~ 100 까지 랜덤으로 생성한다.
+		mObj[i].y = 0;					// y좌표 2에서 생성
+		mObj[i].wait = rand() % 100;	// 생성 대기시간을 주어 한 줄로 떨어지지 않게 한다.
 	}
 
-	while (1) {
+	// 유저 시작 위치 [초기화]
+	user.x = 60;
+	user.y = 25;
 
+	
+	/*
+	* 게임 움직임 부분
+	*/
+	while (flag) {
 		Sleep(speed); // Sleep() 함수를 통해 속도 조절
 		system("cls"); // 화면 지우기
-
-		for (int i = 0; i < 100; i++) {
-			// 대기 시간
-			if (fallingObject[i].wait > 0)
-			{
-				// 대기시간 동안 아직 똥을 떨어뜨리지 않는다.
-				fallingObject[i].wait--;
-			}
-			else {
-				// F 학점을 한칸 아래로 이동한다.
-				fallingObject[i].y++;
-				// F 학점이 최하단에 도착 했을 때 처리.
-				if (fallingObject[i].y >= 28) {
-					fallingObject[i].x = rand() % 120 + 1;
-					fallingObject[i].y = 3;
+	
+		// 일시정지
+		if (_kbhit()) { // 키보드 눌렸는지 확인
+			int key = _getch();
+			switch (key) {
+			case 'c':
+				gotoxy(72, 0);
+				printf("PAUSE");
+				while (1)
+				{
+					key = _getch();
+					if (key == 'c')
+						break;
 				}
-				// F 학점 출력
-				gotoxy(fallingObject[i].x, fallingObject[i].y);
-				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
-				printf("F");
+				gotoxy(72, 0);
+				printf("    ");
+				break;
 			}
 		}
+		// 사람 움직임 처리
+		if (isKeyState(VK_LEFT)) {
+			if (user.x > 1)	{
+				user.x -= 2;
+			}
+		}
+		if (isKeyState(VK_RIGHT)) {
+			if (user.x <= 100) {
+				user.x += 2;
+			}
+		} // 사람 움직임 처리 끝
 
+		// 사람 출력
+		gotoxy(user.x, user.y);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+		printf("ㅇ");
+		gotoxy(user.x, user.y + 1);
+		printf("ㅅ");
+		gotoxy(user.x, user.y + 2);
+		printf("ㅅ");
+
+
+		for (int i = 0; i < 50; i++) { // * 50 투사체 개수 난이도에 따라 바꿔야 함
+			// 대기 시간
+			if (mObj[i].wait > 0) {
+				// 대기 시간을 주어 한 줄로 투사체가 떨어지지 않도록 한다.
+				mObj[i].wait--;
+			} else {
+				// 투사체를 한칸 아래로 이동한다.
+				mObj[i].y++;
+				// F 학점이 최하단에 도착 했을 때 처리.
+				if (mObj[i].y >= 28) {
+					mObj[i].x = rand() % 100 + 1;
+					mObj[i].y = 3;
+				}
+				// F 학점 출력
+				gotoxy(mObj[i].x, mObj[i].y);
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED);
+				printf("F");
+
+				// 투사체와 사용자의 머리 사이의 절대값이 2 보다 작고, y좌표값이 같을 경우 충돌
+				if (abs(mObj[i].x - user.x) < 2 && mObj[i].y == user.y) {
+					// 비프음 출력.
+					printf("\a");
+					flag = false;
+				}
+			}
+		}
 	}
 }
-// 숫자만 받도록 하는 재귀함수
+
+/**
+* @author SeokRae
+* @History
+*		|	Date			|	Author		|	변경 내용	|
+*		|	2017. 06. 02	|	SeokRae		|	신규		|
+* @Description
+*		메인 메뉴에 해당하는 값만을 받기 위한 예외처리 함수
+*/
 char isCheckNum() {
-	cout << "isCheckNum()" << "\n";
+	// cout << "isCheckNum()" << "\n";
 	char checkNum = _getch();
-	cout << checkNum << "\n";
+	// cout << checkNum << "\n";
 	// 메뉴의 숫자(1 ~ 3)외에 다른 숫자가 입력 될 경우 
 	// 다시 입력하게끔 하지만 화면상 보이진 않음
 	switch (checkNum) {
@@ -190,35 +262,33 @@ char isCheckNum() {
 		return isCheckNum();
 	}
 }
+
 /**
  * @author SeokRae
  * @History
  *		|	Date			|	Author		|	변경 내용	|
- *		|	2017. 06.		|				|	신규		|
+ *		|	2017. 06. 02	|	SeokRae		|	신규		|
  * @Description
  *		메인 메뉴 선택 함수
  */
 void controller() {
 	int level = 1;
+	
 	char selectNum = isCheckNum(); // 1 ~ 3 이외에 값을 받을 경우 재귀 한다.
-	cout << "selectNum : " << selectNum << "\n";
-//	selectNum = _getch(); // 키보드의 키 값을 입력 받아 char 변수에 저장
-	while (1) {
-		switch (selectNum) {
-		case '1': // 1. 게임 시작
-			selectNum = 0;
-			game(level);
-			break;
-		case '2': // 2. 게임 설명
-			description(); // 게임 설명 함수 호출
-			break;
-		case '3': // 3. 게임 종료
-			break;
-		default:
-			break;
-		}
+	// selectNum = _getch(); // 키보드의 키 값을 입력 받아 char 변수에 저장
+	switch (selectNum) {
+	case '1': // 1. 게임 시작
+		game(level);
+		break;
+	case '2': // 2. 게임 설명
+		description(); // 게임 설명 함수 호출
+		break;
+	case '3': // 3. 게임 종료
+		exit(0); // 시스템 종료 함수 호출
+		break;
+	default:
+		break;
 	}
-
 }
 
 /**
@@ -232,6 +302,8 @@ void controller() {
 */
 void main() {
 	systemSetting(); 
-	mainMenu(); // 메인 메뉴
-	controller(); // 메뉴 선택 함수
+	while (1) {
+		mainMenu(); // 메인 메뉴
+		controller(); // 메뉴 선택 함수
+	}
 }
