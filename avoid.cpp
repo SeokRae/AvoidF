@@ -4,6 +4,11 @@
 #include <stdlib.h> // exit() 함수의 헤더
 // #include <time.h>  // Srand((unsigned int)time(NULL)) 하면 투사체가 이상하게 떨어짐
 
+
+#define MAP_X 100
+#define MAP_Y 30
+#define COUNT 100
+
 using namespace std;
 /**
 * 투사체의 움직임을 관리 할 구조체
@@ -1175,28 +1180,95 @@ void loading(int stage) {
 		break;
 	}
 }
+
+/**
+* @author SeokRae
+* @History
+*		|	Date			|	Author		|	변경 내용	|
+*		|	2017. 06. 01	|	SeokRae		|	신규		|
+*		|	2017. 06. 07	|	SeokRae		|	타이틀 넣기	|
+* @Description
+*		게임 메인 메뉴
+*/
 void mainMenu() {
-	// 120 / 30
+	
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
-	gotoxy(37, 10);
-	cout << " - F 학점 피하기 - " << "\n";
+	gotoxy(MAP_X / 2.7, 10);
+	gotoxy(12, 1); printf("■■■■■■■    ■■■■■■■■■■■■■■■■■■■■■■■■■    ■■\n");
+	gotoxy(12, 2); printf("■■■■■■    ■  ■■■■■■■■■■■    ■■■■■■■■■■    ■  ■\n");
+	gotoxy(12, 3); printf("■■■■■    ■■    ■■■■■■■■■    ■  ■■■■■■■■    ■■    \n");
+	gotoxy(12, 4); printf("■■■■■■■■  ■■  ■■■■■■■    ■■    ■■■■■■■■■■  ■■\n");
+	gotoxy(12, 5); printf("■■■■■■■■■■■■  ■■■■■■■■■  ■■  ■■■■■■■■■■■■\n");
+	gotoxy(12, 6); printf("  ■■■■■■■■■■■■■■■■■■■■■■■■■  ■■■■■■■■■■■\n");
+	gotoxy(12, 7); printf("■  ■■■■■■■■■■■■■■■■■    ■■■■■■■■■■■■■■■■■\n");
+	gotoxy(12, 8); printf("■■  ■■■■■■■■■■■■■■■    ■  ■■■■■■■■■■    ■■■■\n");
+	gotoxy(12, 9); printf("■■■■■■■    ■■■■■■■■    ■■    ■■■■■■■■    ■  ■■■\n");
+	gotoxy(12, 10); printf("■■■■■    ■  ■■■■■■■■■■■  ■  ■■■■■■■    ■■    ■■\n");
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
-	gotoxy(40, 12);
+	gotoxy(MAP_X / 2.6, 20);
 	cout << " 1. 게 임 시 작 " << "\n";
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 6);
-	gotoxy(40, 14);
+	gotoxy(MAP_X / 2.6, 22);
 	cout << " 2. 게 임 설 명 " << "\n";
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
-	gotoxy(40, 16);
+	gotoxy(MAP_X / 2.6, 24);
 	cout << " 3. 게 임 종 료 " << "\n";
 }
 
 /**
-* 스코어에 따라 학점 출력 함수
+* @author SeokRae
+* @History
+*		|	Date			|	Author		|	변경 내용	|
+*		|	2017. 06. 07	|	SeokRae		|	신규		|
+* @Description
+*		스코어에 따라 학점 출력 함수
 */
-void result() {
-
+void result(int stage, int life) {
+	gotoxy(MAP_X / 2.7, MAP_Y /2);
+	switch (stage) {
+	case 1: // 스테이지 1에서 죽었을 경우 F 떨어지는 스테이지
+		cout << "재수강입니다." << "\n";
+		break;
+	case 2: // 스테이지 2에서 죽었을 경우 C 떨어지는 스테이지
+		switch (life) {
+		case 3:
+			cout << "C+ 이네요" << "\n";
+			break;
+		case 2:
+			cout << "씨 받으세요" << "\n";
+			break;
+		case 1:
+			cout << "당신의 학점은 C-입니다." << "\n";
+			break;
+		}
+		break;
+	case 3: // 스테이지 1에서 죽었을 경우 B 떨어지는 스테이지
+		switch (life) {
+		case 3:
+			cout << "B+ 이네요" << "\n";
+			break;
+		case 2:
+			cout << "B 받으세요" << "\n";
+			break;
+		case 1:
+			cout << "당신의 학점은 B-입니다." << "\n";
+			break;
+		}
+	case 4: // 스테이지 1에서 죽었을 경우 A 떨어지는 스테이지
+		switch (life) {
+		case 3:
+			cout << "축하드려요~ A+ 입니다." << "\n";
+			break;
+		case 2:
+			cout << "대단하시네요. A 입니다." << "\n";
+			break;
+		case 1:
+			cout << "당신의 학점은 A-입니다." << "\n";
+			break;
+		}
+		break;
+	}
 }
 
 /**
@@ -1217,7 +1289,6 @@ static int score;
 *		게임 실행 함수
 */
 void game(int stage) {
-	//stageSetting(stage); // 난이도에 따른 콘솔창 조절 함수 호출
 	loading(stage);
 	int speed = 75 - stage * 15; // 난이도 조절
 
@@ -1232,7 +1303,7 @@ void game(int stage) {
 
 	bool flag = true; // 게임 반복문에 대한 bool 변수
 
-					  // [초기화] 유저 시작 위치 
+	// [초기화] 유저 시작 위치 
 	USER user = { 60, 25 };
 
 	// [초기화] 투사체 F학점 개수, 좌표, 대기 시간
@@ -1250,7 +1321,21 @@ void game(int stage) {
 		Sleep(speed); // Sleep() 함수를 통해 속도 조절
 		system("cls"); // 화면 지우기
 
-					   // 일시정지
+		switch (life) { //라이프 출력
+		case 3:
+			gotoxy(90, 2);
+			cout << "♥ ♥ ♥";
+			break;
+		case 2:
+			gotoxy(90, 2);
+			cout << "♥ ♥ ♡";
+			break;
+		case 1:
+			gotoxy(90, 2);
+			cout << "♥ ♡ ♡";
+			break;
+		}
+		// 일시정지 기능 조건문
 		if (_kbhit()) { // 키보드 눌렸는지 확인
 			int key = _getch();
 			switch (key) {
@@ -1281,20 +1366,7 @@ void game(int stage) {
 				user.x += 2;
 			}
 		} // 사람 움직임 처리 끝
-		switch (life) { //라이프 출력
-		case 3:
-			gotoxy(90, 2);
-			cout << "♥ ♥ ♥";
-			break;
-		case 2:
-			gotoxy(90, 2);
-			cout << "♥ ♥ ♡";
-			break;
-		case 1:
-			gotoxy(90, 2);
-			cout << "♥ ♡ ♡";
-			break;
-		}
+
 		// 사람 출력
 		gotoxy(user.x, user.y);
 		setColor(FOREGROUND_INTENSITY);
@@ -1360,7 +1432,8 @@ void game(int stage) {
 		}// for문 끝
 
 
-	}
+	} // while문 종료
+	result(stage, life);
 }
 
 /**
@@ -1382,6 +1455,9 @@ char isCheckNum() {
 	case '2':
 	case '3':
 		return checkNum;
+	case VK_F1:
+		
+		break;
 	default:
 		return isCheckNum();
 	}
@@ -1426,6 +1502,7 @@ void controller() {
 */
 void main() {
 	systemSetting();
+	
 	while (1) {
 		//opening(); //오프닝화면
 		//loading(); //로딩화면
