@@ -3,6 +3,8 @@
 #include <conio.h> // _kbhit(), _getch() 함수
 #include <stdlib.h> // exit() 함수의 헤더
 // #include <time.h>  // Srand((unsigned int)time(NULL)) 하면 투사체가 이상하게 떨어짐
+#include <map>
+#include <string>
 
 
 #define MAP_X 100
@@ -10,24 +12,32 @@
 #define COUNT 100
 
 using namespace std;
+
+int score;
+int stage;
+int life; //라이프
+map<string, int> userList; // Map 자료형 사용
+
 /**
-* 투사체의 움직임을 관리 할 구조체
+* 투사체의 움직임을 관리할 구조체
 */
 struct MOVEOBJECT {
 	int x		// x 좌표
 		, y		// y 좌표
 		, wait; // 대기시간
 };
-
+/**
+ * 사용자 움직임을 관리할 구조체
+ */
 struct USER {
 	int x		// x 좌표
 		, y;	// y 좌표
 };
 
 // 화면의 특정 위치로 이동해 주는 함수.
-void gotoxy(int x, int y) {
+void gotoxy(double x, int y) {
 	COORD Pos;
-	Pos.X = x;
+	Pos.X = (short) x;
 	Pos.Y = y;
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
@@ -53,11 +63,11 @@ int setColor(const int n) {
 		return 1;
 	}
 }
+
 /**
 * 콘솔 화면 조절 함수
 */
 void systemSetting() {
-
 	// 1. 콘솔 화면 조절
 	// Colums 100 Lines 30의 규격으로 하는 콘솔을 실행한다.
 	system("mode con: cols=100 lines=30");
@@ -640,6 +650,7 @@ void opening() { //로딩화면
 
 
 }
+
 /**
 * @author SeokRae
 * @History
@@ -663,7 +674,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■    ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■    ■■■                  ■■■■■■■■■■■■■  ■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■    ■■■■            ■■■■■■■■  ■■■■■■  ■■■■■■\n");
@@ -683,7 +694,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■    ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■    ■■■                  ■■■■■■■■■■■■■  ■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■            ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■\n");
@@ -693,7 +704,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■                  ■■■■■■■■■■■■■  ■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■            ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■\n");
@@ -703,7 +714,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("                  ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("        ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■\n");
@@ -713,7 +724,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("            ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("  ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
@@ -723,7 +734,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("      ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -733,7 +744,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -743,7 +754,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("  ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -753,7 +764,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -763,7 +774,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -773,7 +784,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -784,7 +795,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -794,7 +805,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■  ■■■■■■■■■  ■■■■■■■  ■  ■■■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■          ■■■■■■■■■  ■■■■■■    ■    ■■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -804,7 +815,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■■■■■■  ■■■■■■    ■    ■■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■  ■■■■■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -814,7 +825,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■  ■■■■■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
@@ -824,7 +835,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		break;
 
@@ -839,7 +850,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■■■\n");
@@ -849,7 +860,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("          ■■■■            ■■■■■■■■  ■■■■■■  ■■■■■■■\n");
@@ -859,7 +870,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■                  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■            ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■\n");
@@ -869,7 +880,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■                  ■■■■■■■■■■■■■  ■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■            ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■\n");
@@ -879,7 +890,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("                  ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("        ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■\n");
@@ -889,7 +900,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("            ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("  ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
@@ -899,7 +910,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("      ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -909,7 +920,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -919,7 +930,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("  ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -929,7 +940,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -939,7 +950,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -949,7 +960,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 9);
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -960,7 +971,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -970,7 +981,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■  ■■■■■■■■■  ■■■■■■■  ■  ■■■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■          ■■■■■■■■■  ■■■■■■    ■    ■■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -980,7 +991,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■■■■■■  ■■■■■■    ■    ■■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■  ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -990,7 +1001,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■■■  ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
@@ -1000,7 +1011,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		break;
 	case 4:
@@ -1014,7 +1025,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■          ■■■■            ■■■■■■■■  ■■■■■■  ■■■■■\n");
@@ -1024,7 +1035,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■                  ■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("          ■■■■            ■■■■■■■■  ■■■■■■  ■■■■■■■\n");
@@ -1034,7 +1045,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■                  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■            ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■\n");
@@ -1044,7 +1055,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■                  ■■■■■■■■■■■■■  ■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■            ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■\n");
@@ -1054,7 +1065,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■  ■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("                  ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("        ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■\n");
@@ -1064,7 +1075,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■  ■■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("            ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("  ■■■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1074,7 +1085,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("      ■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1084,7 +1095,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■    ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■  ■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1094,7 +1105,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("  ■■■    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1104,7 +1115,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("    ■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1114,7 +1125,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■  ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1124,7 +1135,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1135,7 +1146,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 26); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 27); printf("■■■■  ■■■■■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1145,7 +1156,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■  ■■■■■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■  ■■■■■■■■■■■■■  ■■■■■■■  ■  ■■■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■  ■■■■■■■■■■■■■  ■■■■■■    ■    ■■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1155,7 +1166,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■  ■  ■■■■■■■■■■■  ■■■■■■    ■    ■■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■■■  ■■■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
@@ -1165,7 +1176,7 @@ void loading(int stage) {
 		gotoxy(11, 25); printf("■■■■          ■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 26); printf("■■■■■■  ■■■■■■■  ■  ■■■■■■■    ■■■    ■■■  ■■■\n");
 		gotoxy(11, 27); printf("■■■■■■  ■■■■■                  ■■■■■■■■■■■■■■■■■\n");
-		Sleep(300);
+		Sleep(150);
 		system("cls");
 		gotoxy(11, 20); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
 		gotoxy(11, 21); printf("■■■■  ■■■■■■■■            ■■■■■■■■  ■■■■■■  ■■■\n");
@@ -1191,7 +1202,7 @@ void loading(int stage) {
 *		게임 메인 메뉴
 */
 void mainMenu() {
-	
+	system("cls");
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 	gotoxy(MAP_X / 2.7, 10);
 	gotoxy(12, 1); printf("■■■■■■■    ■■■■■■■■■■■■■■■■■■■■■■■■■    ■■\n");
@@ -1213,7 +1224,35 @@ void mainMenu() {
 	cout << " 2. 게 임 설 명 " << "\n";
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
 	gotoxy(MAP_X / 2.6, 24);
-	cout << " 3. 게 임 종 료 " << "\n";
+	cout << " 3. 순 위 정 보 " << "\n";
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 1);
+	gotoxy(MAP_X / 2.6, 26);
+	cout << " 4. 게 임 종 료 " << "\n";
+}
+
+/**
+* @author SeokRae
+* @History
+*		|	Date			|	Author		|	변경 내용	|
+*		|	2017. 06. 08	|	SeokRae		|	랭킹 표시	|
+* @Description
+*		map자료구조에 저장된 유저 리스트를 최대 10명 출력한다.
+*/
+void rankList() {
+	system("cls");
+	gotoxy(MAP_X / 2.2, 10);
+	cout << "랭킹 정보";
+	gotoxy(MAP_X / 2.5, 11);
+	cout << " 순 위 " << " :: " << "아이디" << " :: " << "점 수";
+	map<string, int>::iterator i; // 출력을 위해서 iterator 선언
+	int index = 0; 
+	for (i = userList.begin(); i != userList.end(); i++) {
+		gotoxy(MAP_X / 2.5, (12 + index));
+		cout << i->first << "	 ::		" << i->second << '\n';
+		index++;
+	}
+	
+	system("pause");
 }
 
 /**
@@ -1224,61 +1263,102 @@ void mainMenu() {
 * @Description
 *		스코어에 따라 학점 출력 함수
 */
-void result(int stage, int life) {
+void result(int *stage, int *life, int *score) {
+	system("cls");
 	gotoxy(MAP_X / 2.7, MAP_Y /2);
-	switch (stage) {
+	switch (*stage) {
 	case 1: // 스테이지 1에서 죽었을 경우 F 떨어지는 스테이지
 		cout << "재수강입니다." << "\n";
 		break;
 	case 2: // 스테이지 2에서 죽었을 경우 C 떨어지는 스테이지
-		switch (life) {
+		switch (*life) {
 		case 3:
-			cout << "C+ 이네요" << "\n";
+			cout << "C+" << "\n";
 			break;
 		case 2:
-			cout << "씨 받으세요" << "\n";
+			cout << "C" << "\n";
 			break;
 		case 1:
-			cout << "당신의 학점은 C-입니다." << "\n";
+			cout << "C-" << "\n";
 			break;
 		}
 		break;
 	case 3: // 스테이지 1에서 죽었을 경우 B 떨어지는 스테이지
-		switch (life) {
+		switch (*life) {
 		case 3:
-			cout << "B+ 이네요" << "\n";
+			cout << "B+" << "\n";
 			break;
 		case 2:
-			cout << "B 받으세요" << "\n";
+			cout << "B" << "\n";
 			break;
 		case 1:
-			cout << "당신의 학점은 B-입니다." << "\n";
+			cout << "B-" << "\n";
 			break;
 		}
 	case 4: // 스테이지 1에서 죽었을 경우 A 떨어지는 스테이지
-		switch (life) {
+		switch (*life) {
 		case 3:
-			cout << "축하드려요~ A+ 입니다." << "\n";
+			cout << "A+" << "\n";
 			break;
 		case 2:
-			cout << "대단하시네요. A 입니다." << "\n";
+			cout << "A" << "\n";
 			break;
 		case 1:
-			cout << "당신의 학점은 A-입니다." << "\n";
+			cout << "A-" << "\n";
 			break;
 		}
 		break;
 	}
+	Sleep(300);
+	rankList();
 }
+
 
 /**
-* 게 임 설 명
+* @author SeokRae
+* @History
+*		|	Date			|	Author		|	변경 내용	|
+*		|	2017. 06. 07	|	SeokRae		|	아이디 등록 |
+* @Description
+*		스코어에 따라 학점 출력 함수
 */
-void description() {
+void login() {
+	string name;
+	string pwd;
+
+	bool flag = true;
+
+	
+	while (flag) {
+		gotoxy(28, 12); printf("**************************************************");
+		gotoxy(28, 13); cout << "생명 : " << life << " " << stage << " 스테이지   ";
+		gotoxy(28, 14);	cout << "총점 : " << score << "점을 획득하셨습니다.       ";
+		gotoxy(28, 15);	cout << "등록하실 아이디를 입력 해 주세요.                ";
+		// 아이디 입력
+		gotoxy(40, 16); getline(cin, name); 
+		gotoxy(28, 17); printf("**************************************************");
+		// insert() 함수의 리턴값은 
+		// pair<iterator it, bool bState> 인데, it은 추가된 항목을 가리키는 iterator이고
+		// bool은 실제 항목 추가에 대한 성공유무를 나타내는 값으로 false이면 추가하지 못했다는 것을 의미
+		// 그러므로 아래와 같이 key값이 중복되지 않게 값을 넣을 수 있다.
+		pair<string, int> p(name, score); // 페어 설정
+		if (userList.insert(p).second == false) {
+			cout << "다른 아이디를 입력 해 주세요.";
+			flag = true;
+		} else {
+			userList.insert(p); // Map에 사용자 추가
+			flag = false;
+		}
+	}
+
+	result(&stage, &life, &score);
+}
+
+void adminLogin() {
+	cout << "관리자 페이지 입니다." << "\n";
 
 }
 
-static int score;
 /**
 * @author SeokRae
 * @History
@@ -1286,17 +1366,29 @@ static int score;
 *		|	2017. 06. 01	|	SeokRae		|	신규		|
 *		|	2017. 06. 05	|	DongGeun	|	라이프 추가 |
 * @Description
+*		게임 설명
+*/
+void description() {
+
+}
+
+/**
+* @author SeokRae
+* @History
+*		|	Date			|	Author		|	변경 내용		|
+*		|	2017. 06. 01	|	SeokRae		|	신규			|
+*		|	2017. 06. 05	|	DongGeun	|	라이프 추가		|
+* @Description
 *		게임 실행 함수
 */
-void game(int stage) {
-	loading(stage);
-	int speed = 75 - stage * 15; // 난이도 조절
+void game(int *stage) {
+	loading(*stage);
+	int speed = 75 - *stage * 15; // 난이도 조절
 
-	int life = 3; //라이프
 	
-	if (stage == 2) { score = 101; }
-	if (stage == 3) { score = 201; }
-	if (stage == 4) { score = 301; }
+	if (*stage == 2) { score = 101; }
+	if (*stage == 3) { score = 201; }
+	if (*stage == 4) { score = 301; }
 	
 
 	MOVEOBJECT mObj[100]; // 투사체와 사용자 구조체
@@ -1320,7 +1412,11 @@ void game(int stage) {
 
 		Sleep(speed); // Sleep() 함수를 통해 속도 조절
 		system("cls"); // 화면 지우기
-
+		gotoxy(5, 2);
+		cout << "Stage : " << (*stage);
+		gotoxy(70, 2);
+		cout << "Score : " << score;
+		
 		switch (life) { //라이프 출력
 		case 3:
 			gotoxy(90, 2);
@@ -1334,6 +1430,10 @@ void game(int stage) {
 			gotoxy(90, 2);
 			cout << "♥ ♡ ♡";
 			break;
+		default:
+			gotoxy(90, 2);
+			cout << "♡ ♡ ♡";
+			flag = false;
 		}
 		// 일시정지 기능 조건문
 		if (_kbhit()) { // 키보드 눌렸는지 확인
@@ -1375,8 +1475,7 @@ void game(int stage) {
 		cout << "■" << "\n";
 		gotoxy(user.x, user.y + 2);
 		cout << "||" << "\n";
-		gotoxy(70, 2);
-		cout << score;
+		
 
 		for (int i = 0; i < 100; i++) { // * 50 투사체 개수 난이도에 따라 바꿔야 함
 										// 투사체가 떨어지기 전 (대기 시간을 주어 일렬로 떨어지지 않게 함 
@@ -1395,19 +1494,19 @@ void game(int stage) {
 				}
 				// F 학점 출력
 				gotoxy(mObj[i].x, mObj[i].y);
-				if (stage == 1) {
+				if (*stage == 1) {
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 					cout << "F";
 				}
-				if (stage == 2) {
+				if (*stage == 2) {
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
 					cout << "C";
 				}
-				if (stage == 3) {
+				if (*stage == 3) {
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 9);
 					cout << "B";
 				}
-				if (stage == 4) {
+				if (*stage == 4) {
 					SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
 					cout << "A";
 				}
@@ -1416,31 +1515,26 @@ void game(int stage) {
 					// 비프음 출력.
 					cout << "\a";
 					life--;
-					if (life == 0) { //라이프가 0일때 게임종료
-						gotoxy(90, 2);
-						cout << "♡ ♡ ♡";
+					if (life == 0) {
 						flag = false;
 					}
-
 				}
 				// **  스테이지 넘어가는 소스 필요
-
+				if (score == 100) { (*stage)++; game(stage); }
+				if (score == 200) { (*stage)++; game(stage); }
+				if (score == 300) { (*stage)++; game(stage); }
 			} // if else 문 끝
-			if (score == 100) { game(2); }
-			if (score == 200) { game(3); }
-			if (score == 300) { game(4); }
 		}// for문 끝
-
-
 	} // while문 종료
-	result(stage, life);
+	
 }
 
 /**
 * @author SeokRae
 * @History
-*		|	Date			|	Author		|	변경 내용	|
-*		|	2017. 06. 02	|	SeokRae		|	신규		|
+*		|	Date			|	Author		|	변경 내용		|
+*		|	2017. 06. 02	|	SeokRae		|	1~3번, F1 입력	|
+*		|	2017. 06. 08	|	SeokRae		|	4번 추가		|
 * @Description
 *		메인 메뉴에 해당하는 값만을 받기 위한 예외처리 함수
 */
@@ -1454,13 +1548,15 @@ char isCheckNum() {
 	case '1':
 	case '2':
 	case '3':
-		return checkNum;
-	case VK_F1:
-		
+	case '4':
+		break;
+	case 59:
+		adminLogin();
 		break;
 	default:
 		return isCheckNum();
 	}
+	return checkNum;
 }
 
 /**
@@ -1471,23 +1567,38 @@ char isCheckNum() {
 * @Description
 *		메인 메뉴 선택 함수
 */
-void controller() {
-	int level = 1;
+void start() {
+	while (1) {
+		// 초기화
+		// 게임 다시 시작했을 때 처음 상태로 돌아가기 위함
+		life = 3;
+		stage = 1;
+		score = 0;
+		// 메뉴 선택 텍스트 호출
+		mainMenu();
+		// 값을 입력 받을 함수 호출
+		// 재귀 함수
+		// 1 ~ 3 이외에 값을 받을 경우 재귀 한다.
+		char selectNum = isCheckNum(); 
 
-	char selectNum = isCheckNum(); // 1 ~ 3 이외에 값을 받을 경우 재귀 한다.
-								   // selectNum = _getch(); // 키보드의 키 값을 입력 받아 char 변수에 저장
-	switch (selectNum) {
-	case '1': // 1. 게임 시작
-		game(level);
-		break;
-	case '2': // 2. 게임 설명
-		description(); // 게임 설명 함수 호출
-		break;
-	case '3': // 3. 게임 종료
-		exit(0); // 시스템 종료 함수 호출
-		break;
-	default:
-		break;
+		switch (selectNum) {
+		case '1': // 1. 게임 시작
+			game(&stage);
+			login();
+			break;
+		case '2': // 2. 게임 설명
+			description(); // 게임 설명 함수 호출
+			break;
+		case '3': // 3. 게임 종료
+			rankList(); // 게임 설명 함수 호출
+			break;
+		case '4': // 2. 게임 설명
+			exit(0); // 시스템 종료 함수 호출
+			break;
+		default:
+			break;
+		}
+		
 	}
 }
 
@@ -1495,18 +1606,15 @@ void controller() {
 * @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용									|
-*		|	2017. 06. 01	|	SeokRae		|	systemSetting(), mainMenu(), controller() 	|
+*		|	2017. 06. 01	|	SeokRae		|	systemSetting(), mainMenu()					|
 *		|	2017. 06. 02	|	DongGeun	|	opening(), loading()						|
+*		|	2017. 06. 02	|	SeokRae		|	start()										|
 * @Description
 *		메인 함수
 */
 void main() {
 	systemSetting();
+
+	start(); // 메뉴 선택 함수
 	
-	while (1) {
-		//opening(); //오프닝화면
-		//loading(); //로딩화면
-		mainMenu(); // 메인 메뉴
-		controller(); // 메뉴 선택 함수
-	}
 }
