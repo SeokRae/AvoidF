@@ -5,7 +5,8 @@
 // #include <time.h>  // Srand((unsigned int)time(NULL)) 하면 투사체가 이상하게 떨어짐
 #include <map>
 #include <string>
-
+#include <vector>
+#include <algorithm>
 
 #define MAP_X 100
 #define MAP_Y 30
@@ -17,11 +18,19 @@ using namespace std;
 int score;
 int stage;
 int life; //라이프
+int coin;
 map<string, int> userList; // Map 자료형 사용
 
-						   /**
-						   * 투사체의 움직임을 관리할 구조체
-						   */
+
+template<template <typename> class P = less >
+struct compare_pair_second {
+	template<class T1, class T2> bool operator()(const pair<T1, T2>&left, const pair<T1, T2>&right) {
+		return P<T2>()(left.second, right.second);
+	}
+};
+/**
+* 투사체의 움직임을 관리할 구조체
+*/
 struct MOVEOBJECT {
 	int x		// x 좌표
 		, y		// y 좌표
@@ -77,12 +86,11 @@ void systemSetting() {
 	system("title F 학점 피하기 게임 (제작자 : 김태은, 김석래, 박동근)");
 
 	// 3. 콘솔 화면 색 바꾸기
-	system("Color 0B");
+	system("Color 0F");
 
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 02	|	DongGeun	|	신규		|
@@ -731,7 +739,6 @@ void opening() { //로딩화면
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 03	|	DongGeun	|	신규(1교시)	|
@@ -1272,7 +1279,6 @@ void loading(int stage) {
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 01	|	SeokRae		|	신규		|
@@ -1284,17 +1290,17 @@ void mainMenu() {
 	system("cls");
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 	gotoxy(MAP_X / 2.7, 10);
-	gotoxy(12, 1); printf("■■■■■■■    ■■■■■■■■■■■■■■■■■■■■■■■■■    ■■\n");
-	gotoxy(12, 2); printf("■■■■■■    ■  ■■■■■■■■■■■    ■■■■■■■■■■    ■  ■\n");
-	gotoxy(12, 3); printf("■■■■■    ■■    ■■■■■■■■■    ■  ■■■■■■■■    ■■    \n");
-	gotoxy(12, 4); printf("■■■■■■■■  ■■  ■■■■■■■    ■■    ■■■■■■■■■■  ■■\n");
-	gotoxy(12, 5); printf("■■■■■■■■■■■■  ■■■■■■■■■  ■■  ■■■■■■■■■■■■\n");
-	gotoxy(12, 6); printf("  ■■■■■■■■■■■■■■■■■■■■■■■■■  ■■■■■■■■■■■\n");
-	gotoxy(12, 7); printf("■  ■■■■■■■■■■■■■■■■■    ■■■■■■■■■■■■■■■■■\n");
-	gotoxy(12, 8); printf("■■  ■■■■■■■■■■■■■■■    ■  ■■■■■■■■■■    ■■■■\n");
-	gotoxy(12, 9); printf("■■■■■■■    ■■■■■■■■    ■■    ■■■■■■■■    ■  ■■■\n");
-	gotoxy(12, 10); printf("■■■■■    ■  ■■■■■■■■■■■  ■  ■■■■■■■    ■■    ■■\n");
-
+	gotoxy(8, 1);  printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+	gotoxy(8, 2);  printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+	gotoxy(8, 3);  printf("■■  에프    ■■          ■■          ■■■■■■■■■      ■■■■■■■■■\n");
+	gotoxy(8, 4);  printf("■■  ■■■■■■  ■■■  ■■  ■■■■■■■■■■■■  ■■■  ■■■■  ■■■\n");
+	gotoxy(8, 5);  printf("■■  ■■■■■■  ■■■  ■■  ■■■■■■        ■■  ■■■  ■■■■  ■■■\n");
+	gotoxy(8, 6);  printf("■■        ■■■    피    ■■          ■■■■■■■■   에이   ■■  플러스  ■\n");
+	gotoxy(8, 7);  printf("■■  ■■■■■■  ■■■■■■■■■■  ■■        ■■  ■■■  ■■■■  ■■■\n");
+	gotoxy(8, 8);  printf("■■  ■■■■■■  ■■■■■■■■■■  ■■■■■■■■  ■■■  ■■■■  ■■■\n");
+	gotoxy(8, 9);  printf("■■  ■■■■■■  ■■■■■■   해쓰   ■■■■■■■■■■■■■■■■■■■■■\n");
+	gotoxy(8, 10); printf("■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■\n");
+	gotoxy(80, 11); setColor(8);  printf("by. 종모지리");
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 2);
 	gotoxy(MAP_X / 2.6, 20);
 	cout << " 1. 게 임 시 작 " << "\n";
@@ -1310,7 +1316,6 @@ void mainMenu() {
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 08	|	SeokRae		|	랭킹 표시	|
@@ -1318,87 +1323,39 @@ void mainMenu() {
 *		map자료구조에 저장된 유저 리스트를 최대 10명 출력한다.
 */
 void rankList() {
-	system("cls");
-	gotoxy(MAP_X / 2.2, 10);
-	cout << "랭킹 정보";
-	gotoxy(MAP_X / 2.5, 11);
-	cout << " 순 위 " << " :: " << "아이디" << " :: " << "점 수";
-	map<string, int>::iterator i; // 출력을 위해서 iterator 선언
+	
 	int index = 0;
-	for (i = userList.begin(); i != userList.end(); i++) {
-		gotoxy(MAP_X / 2.5, (12 + index));
-		cout << i->first << "	 ::		" << i->second << '\n';
+	
+	system("cls");
+	gotoxy(MAP_X / 2.4, 10);
+	cout << "랭킹 정보";
+	gotoxy(MAP_X / 2.6, 11);
+	cout << " 순 위 " << " :: " << "아이디" << " :: " << "점 수";
+	
+	// 제네릭을 pair로 하는 vector를 만들어 Map의 시작부터 끝까지 넣는다.
+	vector<pair<string, int> > rank(userList.begin(), userList.end());
+
+	// 정렬 라이브러리를 사용하여 vector를 오름차순으로 정렬
+	sort(rank.begin(), rank.end(), compare_pair_second<less>());
+
+	// https://stackoverflow.com/questions/279854/how-do-i-sort-a-vector-of-pairs-based-on-the-second-element-of-the-pair
+	for (int j = rank.size() - 1; j >= 0; j--) {
+		gotoxy(MAP_X / 2.2, (12 + index));
+		cout << "	" << rank.size() - j << " ::	" << rank[j].first << " ::	" << rank[j].second << '\n';
 		index++;
 	}
-
+	// 잠시 대기
+	setColor(0);
 	system("pause");
 }
 
-/**
-* @author SeokRae
-* @History
-*		|	Date			|	Author		|	변경 내용	|
-*		|	2017. 06. 07	|	SeokRae		|	신규		|
-* @Description
-*		스코어에 따라 학점 출력 함수
-*/
-void result(int *stage, int *life, int *score) {
-	system("cls");
-	gotoxy(MAP_X / 2.7, MAP_Y / 2);
-	switch (*stage) {
-	case 1: // 스테이지 1에서 죽었을 경우 F 떨어지는 스테이지
-		cout << "재수강입니다." << "\n";
-		break;
-	case 2: // 스테이지 2에서 죽었을 경우 C 떨어지는 스테이지
-		switch (*life) {
-		case 3:
-			cout << "C+" << "\n";
-			break;
-		case 2:
-			cout << "C" << "\n";
-			break;
-		case 1:
-			cout << "C-" << "\n";
-			break;
-		}
-		break;
-	case 3: // 스테이지 1에서 죽었을 경우 B 떨어지는 스테이지
-		switch (*life) {
-		case 3:
-			cout << "B+" << "\n";
-			break;
-		case 2:
-
-			cout << "B" << "\n";
-			break;
-		case 1:
-			cout << "B-" << "\n";
-			break;
-		}
-	case 4: // 스테이지 1에서 죽었을 경우 A 떨어지는 스테이지
-		switch (*life) {
-		case 3:
-			cout << "A+" << "\n";
-			break;
-		case 2:
-			cout << "A" << "\n";
-			break;
-		case 1:
-			cout << "A-" << "\n";
-			break;
-		}
-		break;
-	}
-	Sleep(300);
-	rankList();
-}
 
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 07	|	SeokRae		|	아이디 등록 |
+*		|	2017. 06. 09	|	DongGeun		|	상장 그래픽 |
 * @Description
 *		스코어에 따라 학점 출력 함수
 */
@@ -1410,57 +1367,63 @@ void login() {
 	string pwd;
 
 	while (flag) {
+		bool next = false;
+		while (!next) {
+			if (score <= 500) {
+				gotoxy(28, 13); cout << "생명 : " << life << " " << stage << " 스테이지   ";
+				gotoxy(28, 14);	cout << "총점 : " << score << "점을 획득하셨습니다.       ";
+				gotoxy(28, 15);	cout << "등록하실 아이디를 입력 해 주세요.                ";
+				// 아이디 입력
+				gotoxy(40, 16);
+				
+			}
+			if (score > 500) {
+				gotoxy(55, 8);  printf(" -----------------------------------");
+				gotoxy(55, 9);  printf("/                                  /");
+				gotoxy(54, 10); printf("/                                  /");
+				gotoxy(53, 11); printf("/          상      장              /");
+				gotoxy(52, 12); printf("/                                  /");
+				gotoxy(51, 13); printf("/                                  /");
+				gotoxy(50, 14); printf("/                                  /");
+				gotoxy(49, 15); printf("/   위 학생은 우수한 성적으로      /");
+				gotoxy(48, 16); printf("/                                  /");
+				gotoxy(47, 17); printf("/  이번 학기를 잘 마무리 했으므로  /");
+				gotoxy(46, 18); printf("/                                  /");
+				gotoxy(45, 19); printf("/     이 상장을 주어 칭찬함.       /");
+				gotoxy(44, 20); printf("/                                  /");
+				gotoxy(43, 21); printf("/                                  /");
+				gotoxy(42, 22); printf("/                                  /");
+				gotoxy(41, 23); printf(" -----------------------------------");
+				gotoxy(50, 5); printf("   ■■");
+				gotoxy(50, 6); printf("  ■■■");
+				gotoxy(50, 7); printf(" ■■■");
+				gotoxy(50, 8); printf("  ■■");
+				gotoxy(85, 5); printf("     ■■");
+				gotoxy(85, 6); printf("   ■■■");
+				gotoxy(85, 7); printf("  ■■■");
+				gotoxy(85, 8); printf("■■");
+				gotoxy(35, 22); printf("   ■■");
+				gotoxy(35, 23); printf("  ■■■");
+				gotoxy(35, 24); printf(" ■■■");
+				gotoxy(35, 25); printf("  ■■");
+				gotoxy(75, 22); printf("■■");
+				gotoxy(73, 23); printf("■■■");
+				gotoxy(72, 24); printf("■■■");
+				gotoxy(70, 25); printf("■■");
+				gotoxy(68, 13); printf("이름 : ");
 
-		if (score <= 310) {
-			gotoxy(28, 13); cout << "생명 : " << life << " " << stage << " 스테이지   ";
-			gotoxy(28, 14);	cout << "총점 : " << score << "점을 획득하셨습니다.       ";
-			gotoxy(28, 15);	cout << "등록하실 아이디를 입력 해 주세요.                ";
+			} // if End
 			// 아이디 입력
-			gotoxy(40, 16); 
-			// insert() 함수의 리턴값은 
-			// pair<iterator it, bool bState> 인데, it은 추가된 항목을 가리키는 iterator이고
-			// bool은 실제 항목 추가에 대한 성공유무를 나타내는 값으로 false이면 추가하지 못했다는 것을 의미
-			// 그러므로 아래와 같이 key값이 중복되지 않게 값을 넣을 수 있다.
-			
+			getline(cin, name);
+			// 공백 입력 시 다시 입력 받게끔 한다.
+			if (name.size() < 1) {
+				cout << "아이디는 공백일 수 없습니다. 다시 입력 해 주세요";
+				next = false;
+			}
+			else {
+				next = true;
+			}
 		}
-		if (score > 500) {
-			gotoxy(55, 8);  printf(" -----------------------------------");
-			gotoxy(55, 9);  printf("/                                  /");
-			gotoxy(54, 10); printf("/                                  /");
-			gotoxy(53, 11); printf("/          상      장              /");
-			gotoxy(52, 12); printf("/                                  /");
-			gotoxy(51, 13); printf("/                                  /");
-			gotoxy(50, 14); printf("/                                  /");
-			gotoxy(49, 15); printf("/   위 학생은 우수한 성적으로      /");
-			gotoxy(48, 16); printf("/                                  /");
-			gotoxy(47, 17); printf("/  이번 학기를 잘 마무리 했으므로  /");
-			gotoxy(46, 18); printf("/                                  /");
-			gotoxy(45, 19); printf("/     이 상장을 주어 칭찬함.       /");
-			gotoxy(44, 20); printf("/                                  /");
-			gotoxy(43, 21); printf("/                                  /");
-			gotoxy(42, 22); printf("/                                  /");
-			gotoxy(41, 23); printf(" -----------------------------------");
-			gotoxy(50, 5); printf("   ■■");
-			gotoxy(50, 6); printf("  ■■■");
-			gotoxy(50, 7); printf(" ■■■");
-			gotoxy(50, 8); printf("  ■■");
-			gotoxy(85, 5); printf("     ■■");
-			gotoxy(85, 6); printf("   ■■■");
-			gotoxy(85, 7); printf("  ■■■");
-			gotoxy(85, 8); printf("■■");
-			gotoxy(35, 22); printf("   ■■");
-			gotoxy(35, 23); printf("  ■■■");
-			gotoxy(35, 24); printf(" ■■■");
-			gotoxy(35, 25); printf("  ■■");
-			gotoxy(75, 22); printf("■■");
-			gotoxy(73, 23); printf("■■■");
-			gotoxy(72, 24); printf("■■■");
-			gotoxy(70, 25); printf("■■");
-			gotoxy(68, 13); printf("이름 : "); 
-
-		} // if End
-
-		getline(cin, name);
 		pair<string, int> p(name, score); // 페어 설정
 		if (userList.insert(p).second == false) {
 			cout << "다른 아이디를 입력 해 주세요.";
@@ -1471,11 +1434,11 @@ void login() {
 			flag = false;
 		}
 	} // while End
-	result(&stage, &life, &score);
+	// 스테이지, 라이프, 스코어 값을 가지고 결과물을 출력하러 감
+	rankList();
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용		|
 *		|	2017. 06. 01	|	SeokRae		|	신규			|
@@ -1484,21 +1447,19 @@ void login() {
 *		게임 실행 함수
 */
 void game(int *stage) {
-	// loading(*stage);
+	// loading(*stage);											/* 로딩 그래픽 */
 	int speed = 75 - *stage * 15; // 난이도 조절
 
 
-	if (*stage == 2) { score = 101; }
+	if (*stage == 2) { score = 101; }							/* 스테이지 별 스코어 */
 	if (*stage == 3) { score = 201; }
 	if (*stage == 4) { score = 301; }
 
 
-	MOVEOBJECT mObj[100]; // 투사체와 사용자 구조체
+	MOVEOBJECT mObj[100];										/* 떨어지는 학점 구조체 */
+	USER user = { 60, 25 };										/* 유저 시작 위치 [초기화] */
 
-	bool flag = true; // 게임 반복문에 대한 bool 변수
-
-					  // [초기화] 유저 시작 위치 
-	USER user = { 60, 25 };
+	bool flag = true;											/* 게임 반복문에 대한 bool 변수 선언 */
 
 	// [초기화] 투사체 F학점 개수, 좌표, 대기 시간
 	for (int i = 0; i < 100; i++) {
@@ -1514,8 +1475,6 @@ void game(int *stage) {
 
 		Sleep(speed); // Sleep() 함수를 통해 속도 조절
 		system("cls"); // 화면 지우기
-
-
 
 		gotoxy(5, 2);
 		cout << "Stage : " << (*stage);
@@ -1539,12 +1498,12 @@ void game(int *stage) {
 			gotoxy(90, 2);
 			cout << "♡ ♡ ♡";
 			flag = false;
-			
+
 		}
 		// 일시정지 기능 조건문
 		if (_kbhit()) { // 키보드 눌렸는지 확인
 			int key = _getch();
-			switch (key) {
+			switch (key) {						/* pause 기능 */
 			case 'c':
 				gotoxy(72, 0);
 				cout << "PAUSE" << "\n";
@@ -1557,7 +1516,13 @@ void game(int *stage) {
 				gotoxy(72, 0);
 				cout << "    " << "\n";
 				break;
+			case 'q':
+				gotoxy(72, 0);
+				coin++;
+				cout << "코인 : " << coin << "\n";
+				break;
 			}
+
 		}
 
 
@@ -1618,14 +1583,38 @@ void game(int *stage) {
 				}
 				// 투사체와 사용자의 머리 사이의 절대값이 2 보다 작고, y좌표값이 같을 경우 충돌
 				if (abs(mObj[i].x - user.x) < 2 && (mObj[i].y == user.y)) {
-					// 비프음 출력.
-					cout << "\a";
-					life--;
-					if (life == 0) {
+					cout << "\a";					/* 비프음 출력					*/
+					life--;							/* 머리에 맞으면 라이프 1 감소	*/
+					if (life <= 0) {				/* 라이프가 0일 때				*/
+						bool coinFlag = false;			
+						if (coin > 0) {				/* 코인을 가지고 있을 때		*/
+							coinFlag = true;
+						}
+						while (coinFlag) {
+							system("cls");
+							cout << "이어서 하시겠습니까? 종료하시겠습니까? ( Y / N ) : " << endl;
+							cout << "현재 코인  : " << coin << "개" << endl;
+							if (_kbhit()) { // 키보드 눌렸는지 확인
+								int key = _getch();
+								switch (key) {
+								case 'y':
+									coin--;
+									life = 3;
+									flag = true;
+									coinFlag = false;
+									break;
+
+								case 'n':
+									flag = false;
+									coinFlag = false;
+									break;
+								}
+							}
+						} // while End
 						flag = false;
 						break;
-					}
-				}
+					} // if (life <= 0) End
+				} // if 투사체 머리에 맞을 때
 
 			} // if else 문 끝
 			  // **  스테이지 넘어가는 소스 필요
@@ -1647,15 +1636,15 @@ void game(int *stage) {
 *		관리자는 스테이지를 선택해서 플레이
 */
 void adminLogin() {
-	setColor(15); gotoxy(40, 11); cout << "관리자 페이지 입니다." << "\n";
-	setColor(15); gotoxy(41, 12); cout << "스테이지를 입력하세요 : ";
+	setColor(15); 
+	gotoxy(40, 11); cout << "관리자 버전 입니다." << "\n";
+	gotoxy(41, 12); cout << "스테이지를 입력하세요 : ";
 	int sel;
 	cin >> sel;
 	game(&sel);
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 01	|	SeokRae		|	신규		|
@@ -1667,75 +1656,22 @@ void description() {
 
 }
 
-/*void ending() {
-string name;
-//string pwd;
-bool flag = true;
-//	while (flag) {
-gotoxy(55, 8);  printf(" -----------------------------------");
-gotoxy(55, 9);  printf("/                                  /");
-gotoxy(54, 10); printf("/                                  /");
-gotoxy(53, 11); printf("/          상      장              /");
-gotoxy(52, 12); printf("/                                  /");
-gotoxy(51, 13); printf("/                                  /");
-gotoxy(50, 14); printf("/                                  /");
-gotoxy(49, 15); printf("/   위 학생은 우수한 성적으로      /");
-gotoxy(48, 16); printf("/                                  /");
-gotoxy(47, 17); printf("/  이번 학기를 잘 마무리 했으므로  /");
-gotoxy(46, 18); printf("/                                  /");
-gotoxy(45, 19); printf("/     이 상장을 주어 칭찬함.       /");
-gotoxy(44, 20); printf("/                                  /");
-gotoxy(43, 21); printf("/                                  /");
-gotoxy(42, 22); printf("/                                  /");
-gotoxy(41, 23); printf(" -----------------------------------");
-gotoxy(50, 5); printf("   ■■");
-gotoxy(50, 6); printf("  ■■■");
-gotoxy(50, 7); printf(" ■■■");
-gotoxy(50, 8); printf("  ■■");
-gotoxy(85, 5); printf("     ■■");
-gotoxy(85, 6); printf("   ■■■");
-gotoxy(85, 7); printf("  ■■■");
-gotoxy(85, 8); printf("■■");
-gotoxy(35, 22); printf("   ■■");
-gotoxy(35, 23); printf("  ■■■");
-gotoxy(35, 24); printf(" ■■■");
-gotoxy(35, 25); printf("  ■■");
-gotoxy(75, 22); printf("■■");
-gotoxy(73, 23); printf("■■■");
-gotoxy(72, 24); printf("■■■");
-gotoxy(70, 25); printf("■■");
-gotoxy(68, 13); printf("이름 : "); getline(cin, name);
-pair<string, int> p(name, score); // 페어 설정
-if (userList.insert(p).second == false) {
-cout << "다른 아이디를 입력 해 주세요.";
-flag = true;
-}
-else {
-userList.insert(p); // Map에 사용자 추가
-flag = false;
-}
-//	}
-result(&stage, &life, &score);
-
-}*/
 
 
 /**
-* @author SeokRae
 * @History
-*		|	Date			|	Author		|	변경 내용		|
-*		|	2017. 06. 02	|	SeokRae		|	1~3번, F1 입력	|
-*		|	2017. 06. 08	|	SeokRae		|	4번 추가		|
+*		|	Date			|	Author		|	변경 내용				|
+*		|	2017. 06. 02	|	SeokRae		|	1~3번, F1(관리자) 입력	|
+*		|	2017. 06. 08	|	SeokRae		|	4번 추가				|
+*		|	2017. 06. 08	|	Taeen		|	q번 추가(코인)			|
 * @Description
-*		메인 메뉴에 해당하는 값만을 받기 위한 예외처리 함수
+*		메인 메뉴에 해당하는 값만을 받기 위한 예외처리 재귀 함수
 */
 char isCheckNum() {
-	// cout << "isCheckNum()" << "\n";
-	char checkNum = _getch();
-	// cout << checkNum << "\n";
+	char checkNum = _getch(); /* 키보드 값을 입력 받아 변수에 저장 */
 	// 메뉴의 숫자(1 ~ 3)외에 다른 숫자가 입력 될 경우 
 	// 다시 입력하게끔 하지만 화면상 보이진 않음
-	switch (checkNum) {
+	switch (checkNum) { 
 	case '1':
 	case '2':
 	case '3':
@@ -1744,40 +1680,53 @@ char isCheckNum() {
 	case 59:
 		adminLogin();
 		break;
+	case'q':
+		coin++;
+		setColor(15);
+		gotoxy(2, 28);
+		cout << "COIN -> " << coin << "\n";
+		setColor(0);
+		Sleep(1000);
+		break;
 	default:
-		return isCheckNum();
+		return isCheckNum();				/* 재귀함수 호출 */
 	}
 	return checkNum;
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용	|
 *		|	2017. 06. 02	|	SeokRae		|	신규		|
+*		|	2017. 06. 02	|	TaeEn		|	코인로직	|
 * @Description
 *		메인 메뉴 선택 함수
 */
 void start() {
 	while (1) {
-		// 초기화
-		// 게임 다시 시작했을 때 처음 상태로 돌아가기 위함
-		life = 3;
-		stage = 1;
-		score = 0;
-		// 메뉴 선택 텍스트 호출
-		mainMenu();
-		// 값을 입력 받을 함수 호출
+		// 변수 초기화
+		life = 3;							/* 생명 3으로 시작		*/
+		stage = 1;							/* 스테이지 1로 시작	*/
+		score = 0;							/* 스코어 0으로 시작	*/	
+
+		mainMenu();							/* 메인 선택 텍스트 호출*/
 		// 재귀 함수
 		// 1 ~ 3 이외에 값을 받을 경우 재귀 한다.
 		char selectNum = isCheckNum();
 
 		switch (selectNum) {
-		case '1': // 1. 게임 시작
+		case '1':			// 1. 게임 시작
+			if (coin <= 0) {
+				setColor(15);
+				gotoxy(2, 28);
+				cout << "INSERT COIN -> " << coin << endl;
+				setColor(0);
+				Sleep(500);
+				break;
+			}
+			coin--;
 			game(&stage);
-			login();
-			//login();
-			//ending();
+			login();		
 			break;
 		case '2': // 2. 게임 설명
 			description(); // 게임 설명 함수 호출
@@ -1788,15 +1737,14 @@ void start() {
 		case '4': // 2. 게임 설명
 			exit(0); // 시스템 종료 함수 호출
 			break;
+
 		default:
 			break;
 		}
-
 	}
 }
 
 /**
-* @author SeokRae
 * @History
 *		|	Date			|	Author		|	변경 내용									|
 *		|	2017. 06. 01	|	SeokRae		|	systemSetting(), mainMenu()					|
